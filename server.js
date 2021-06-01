@@ -5,6 +5,7 @@ const nodemon = require('nodemon');
 const app = express();
 const userList = new Array();
 const PORT = 8080 || process.env.PORT;
+
 //set static folder
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
@@ -16,11 +17,14 @@ httpServer.listen(PORT, () => {
 });
 const io = require('socket.io')(httpServer);
 /*get msg from one client then transmit to every other client, do not use io.emit();*/
+//nvm
 io.on("connection", socket => {
-    socket.username = "anonymous"
+    socket.username = "";
     socket.on("message", (message) => {
-        console.log(message)
+        console.log(message);
         io.emit("message", message);
+        // io.emit("getTime", getTime());
+        // console.log(getTime());
     });
     socket.on("join", (username) =>{
             socket.username = username;
@@ -39,4 +43,17 @@ io.on("connection", socket => {
 //stupid
 // const parseMessage = msg => {
 //     return `${msg.username}: ${msg.words}`;
+// }
+//this only gets the server's time, update time on the client side
+// const getTime = () =>{
+//     let current = new Date();
+//     const obj = {
+//         Year: current.getFullYear(),
+//         month: current.getMonth() + 1,
+//         day: current.getDate(),
+//         hour: current.getHours(),
+//         minute: current.getMinutes(),
+//         sec: current.getSeconds()
+//     }    
+//     return `${obj.Year}\/${obj.month}\/${obj.day}\/\/${obj.hour}:${obj.minute}:${obj.sec}`;
 // }

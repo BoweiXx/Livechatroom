@@ -11,33 +11,23 @@
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <style>
-        html {
-            scroll-behavior: smooth;
+        @font-face {
+            font-family: 'Gameboy';
+            src: url('./font/early_gameboy-webfont.woff2') format('woff2'),
+                url('./font/early_gameboy-webfont.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
         }
-
-        #textbox {
-            overflow: scroll;
-            overflow-y: scroll;
-            overflow-wrap: normal;
-        }
-
-        /* ::-webkit-scrollbar {
-            width: 20;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background-color: #7386ff;
-        } */
     </style>
     <title>CHAT</title>
 </head>
 
-<body>
+<body style="width: 100%; height:100%; font-family: Gameboy;">
     <!-- Vue template stuff -->
     <!-- Login Page -->
     <div id="main">
-        <div v-if="page == 0" id="login" style="width: 50%; margin: 0 auto; padding: 5em; background-color:#7386ff ;">
-            <h1 style="color:#e6e9ff; text-align: center;">WELCOME!</h1>
+        <div v-if="page == 0" id="login" style="width: 100%; height: 100%;  background-color:#7386ff ;">
+            <h1 style="color:#e6e9ff; text-align: center; padding-top: 3em;">WELCOME!</h1>
             <el-row gutter="20">
                 <el-col span="12">
                     <el-input placeholder="Please Choose a Username" v-model="newUsername"
@@ -45,28 +35,29 @@
                 </el-col>
                 <el-col span="1.5">
                     <el-button @click="updateUsername" type="default" icon="el-icon-thumb
-            " style="background-color: #667aff; color: #e6e9ff;">Submit</el-button>
+            " style="background-color: #667aff; color: #e6e9ff; font-family: Gameboy;">Submit</el-button>
                 </el-col>
                 <el-col span="2">
                     <el-button @click="joinAsGuest" type="default" icon="el-icon-user"
-                        style="background-color: #667aff; color: #e6e9ff; ">Join as Guest</el-button>
+                        style="background-color: #667aff; color: #e6e9ff; font-family: Gameboy">Join as Guest
+                    </el-button>
                 </el-col>
             </el-row>
         </div>
+        <!-- <canvas id="loginCanvas"></canvas> -->
         <!-- Main page -->
         <!-- Header thing -->
         <div v-if="page == 1" id="header">
             <el-row>
                 <el-col span="24">
                     <h1
-                        style="font-family: Arial, Helvetica, sans-serif; color: black; padding: .5em; text-align: center; background: #7386ff; color:#e6e9ff; margin: 0 auto">
+                        style="color: black; padding: .5em; text-align: center; background: #7386ff; color:#e6e9ff; margin: 0 auto">
                         CHAT
                     </h1>
                 </el-col>
             </el-row>
             <!-- Textbox -->
             <div id="textBox">
-
                 <el-row>
                     <el-col span='2' style="background-color: #7386ff; color: #e6e9ff;">
                         <h5 style="padding: 10px; margin-bottom: 20px;">Current Users:</h5>
@@ -76,7 +67,7 @@
                         <ul style="background-color: #e6e9ff;">
                             <li style="text-align: left; list-style-type: none; color: #667aff; padding: .5em; padding: .5em;"
                                 v-for="messages in inputedMessage">
-                                <b>{{messages.username}}</b>: {{messages.words}}
+                                <p style ="font-family: Gameboy; font-size: small; " v-for ="time in timeList">{{time}}</p> <b>{{messages.username}}</b>: {{messages.words}} 
                             </li>
                         </ul>
                     </el-col>
@@ -91,11 +82,11 @@
                     <el-col span='18'>
                         <el-input type="text" placeholder="Say something" v-model="message.words"
                             @keyup.enter.native="sendMessage"
-                            style="margin: 1.5em auto; border-radius: 2em; align-content: center; border-color: #7386ff" />
+                            style="margin: 1.5em auto; border-radius: 2em; align-content: center; border-color: #7386ff; font-family: Gameboy" />
                     </el-col>
                     <el-col span='4'>
                         <el-button type='default' icon="el-icon-check" @click="sendMessage"
-                            style="margin: 1.5em auto; align-content: center; background-color: #7386ff; color: #fff">
+                            style="margin: 1.5em auto; align-content: center; background-color: #7386ff; color: #fff; font-family: Gameboy">
                             Send
                         </el-button>
                     </el-col>
@@ -120,18 +111,10 @@
                 newNotification: [],
                 currentUsers: [],
                 //time stuff
-                month: currentTime.getMonth() + 1,
-                day: currentTime.getDate(),
-                time: currentTime.toTimeString()
+                timeList: []
             },
             created: function () {
                 socket = io();
-                interval = setInterval(() => {
-                    let currentTime = new Date();
-                    this.month = currentTime.getMonth() + 1;
-                    this.day = currentTime.getDate();
-                    this.time = currentTime.toTimeString().substring(0, 8);
-                }, 1000);
             },
             //methods in the area of this object
             methods: {
@@ -162,26 +145,30 @@
                     this.currentUsers.push(this.message.username);
                     socket.emit('join', this.message.username);
                     // console.log(`${this.message.username} has joined the server`)
+                },
+                getCurrentTime: function(){
+                    let currentTime = new Date();
+                    return `${currentTime.getFullYear()}\/ ${currentTime.getMonth() + 1} \/${currentTime.getDate()} // ${currentTime.getHours()} : ${currentTime.getMinutes()}`;
                 }
             },
             computed: {
-                newTime: function () {
-                    return (`${this.month}\/ ${this.day}\/ ${this.time}`);
-                }
+
             },
             // make sure only call the socket events after the virtual dom thing is attached to the visual layer
             mounted: function () {
                 socket.on("message", function (inMessage) {
                     mainRoom.inputedMessage.push(inMessage);
-                    console.log(inMessage)
+                    mainRoom.timeList.push(mainRoom.getCurrentTime());
+                    console.log(mainRoom.timeList);
                 })
                 socket.on("updateUser", function (user) {
                     mainRoom.currentUsers = user;
                     console.log(mainRoom.currentUsers)
                 })
+                //get current time locally and bind to the message box
             },
         })
     </script>
+    <script src="./js/main.js"></script>
 </body>
-
 </html>
