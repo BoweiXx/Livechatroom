@@ -4,7 +4,7 @@ const express = require('express');
 const nodemon = require('nodemon');
 const app = express();
 const userList = new Array();
-const PORT = 8080 || process.env.PORT;
+const PORT = 80 || process.env.PORT;
 
 //set static folder
 app.use(express.static(path.join(__dirname, 'public')));
@@ -31,14 +31,14 @@ io.on("connection", socket => {
             userList.push(socket.username);
             console.log(userList);
             io.emit('updateUser', userList)
-    })
+    });
     socket.on("disconnect", (username)=>{
         username = socket.username;
         loc = userList.indexOf(username);
         userList.splice(loc,1);
         console.log(userList);
         io.emit("updateUser", userList);
-    })
+    });
 });
 //stupid
 // const parseMessage = msg => {

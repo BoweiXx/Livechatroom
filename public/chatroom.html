@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <!-- make sure that the text that is sent by myself is directly rendered on the client side, so everything from the server is from others -->
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -18,6 +19,23 @@
             font-style: normal;
         }
 
+        ::-webkit-scrollbar {
+            width: 20px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #7386ff;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e6e9ff;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: purple;
+        }
+
         body {
             margin: 0;
             background-color: #7386ff;
@@ -31,6 +49,7 @@
             position: fixed;
             height: 100%;
             overflow: auto;
+
         }
 
         .sidebar h5 {
@@ -51,6 +70,8 @@
             margin-left: 200px;
             padding: 1px 16px;
             height: 600px;
+            overflow: auto;
+            /* overflow-x: hidden; */
         }
 
         @media screen and (max-width: 700px) {
@@ -85,21 +106,23 @@
     <div id="main">
         <div v-if="page == 0" id="login" style="width: 100%; height: 100%;  background-color:#7386ff ;">
             <h1 style="color:#e6e9ff; text-align: center; padding-top: 3em;">WELCOME!</h1>
-            <el-row gutter="20">
-                <el-col span="12">
-                    <el-input placeholder="Please Choose a Username" v-model="newUsername"
-                        @keyup.enter.native="updateUsername" />
-                </el-col>
-                <el-col span="1.5">
-                    <el-button @click="updateUsername" type="default" icon="el-icon-thumb
+            <div style="padding: 100px">
+                <el-row gutter="20">
+                    <el-col span="12">
+                        <el-input placeholder="Please Choose a Username" v-model="newUsername"
+                            @keyup.enter.native="updateUsername" />
+                    </el-col>
+                    <el-col span="1.5">
+                        <el-button @click="updateUsername" type="default" icon="el-icon-thumb
             " style="background-color: #667aff; color: #e6e9ff; font-family: Gameboy;">Submit</el-button>
-                </el-col>
-                <el-col span="2">
-                    <el-button @click="joinAsGuest" type="default" icon="el-icon-user"
-                        style="background-color: #667aff; color: #e6e9ff; font-family: Gameboy">Join as Guest
-                    </el-button>
-                </el-col>
-            </el-row>
+                    </el-col>
+                    <el-col span="2">
+                        <el-button @click="joinAsGuest" type="default" icon="el-icon-user"
+                            style="background-color: #667aff; color: #e6e9ff; font-family: Gameboy">Join as Guest
+                        </el-button>
+                    </el-col>
+                </el-row>
+            </div>
         </div>
         <!-- <canvas id="loginCanvas"></canvas> -->
         <!-- Main page -->
@@ -131,18 +154,18 @@
             </div>
             <!-- input, tab thing  -->
             <el-form @submit.native.prevent>
-                <el-row gutter="20">
-                    <el-col span="2">
+                <el-row gutter="10">
+                    <el-col style="width: 210px">
                         <p style="background-color:#7386ff ;"></p>
                     </el-col>
-                    <el-col span='18'>
+                    <el-col span='16'>
                         <el-input type="text" placeholder="Say something" v-model="message.words"
                             @keyup.enter.native="sendMessage"
-                            style="margin: 1.5em auto; border-radius: 2em; align-content: center; border-color: #7386ff; font-family: Gameboy" />
+                            style="margin: auto auto; border-radius: 2em; align-content: center; border-color: #7386ff; font-family: Gameboy" />
                     </el-col>
                     <el-col span='4'>
                         <el-button type='default' icon="el-icon-check" @click="sendMessage"
-                            style="margin: 1.5em auto; align-content: center; background-color: #7386ff; color: #fff; font-family: Gameboy">
+                            style="margin: auto auto; align-content: center; background-color: #7386ff; color: #fff; font-family: Gameboy">
                             Send
                         </el-button>
                     </el-col>
@@ -219,7 +242,7 @@
                 socket.on("message", function (inMessage) {
                     mainRoom.inputedMessage.push(inMessage);
                     track2.play();
-                    mainRoom.time =  mainRoom.getCurrentTime() ;
+                    mainRoom.time = mainRoom.getCurrentTime();
                 })
                 socket.on("updateUser", function (user) {
                     mainRoom.currentUsers = user;
