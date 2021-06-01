@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <!-- make sure that the text that is sent by myself is directly rendered on the client side, so everything from the server is from others -->
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -17,6 +16,64 @@
                 url('./font/early_gameboy-webfont.woff') format('woff');
             font-weight: normal;
             font-style: normal;
+        }
+
+        body {
+            margin: 0;
+            background-color: #7386ff;
+        }
+
+        .sidebar {
+            margin: 0;
+            padding: 0;
+            width: 200px;
+            background-color: #7386ff;
+            position: fixed;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .sidebar h5 {
+            display: block;
+            color: #e6e9ff;
+            padding: 16px;
+            text-decoration: none;
+        }
+
+        .sidebar h6 {
+            display: block;
+            color: #e6e9ff;
+            padding: 16px;
+            text-decoration: none;
+        }
+
+        div.content {
+            margin-left: 200px;
+            padding: 1px 16px;
+            height: 600px;
+        }
+
+        @media screen and (max-width: 700px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .sidebar h5 {
+                float: left;
+            }
+
+            div.content {
+                margin-left: 0;
+            }
+        }
+
+        @media screen and (max-width: 400px) {
+            .sidebar a {
+                text-align: center;
+                float: none;
+            }
         }
     </style>
     <title>CHAT</title>
@@ -58,20 +115,19 @@
             </el-row>
             <!-- Textbox -->
             <div id="textBox">
-                <el-row>
-                    <el-col span='2' style="background-color: #7386ff; color: #e6e9ff;">
-                        <h5 style="padding: 10px; margin-bottom: 20px;">Current Users:</h5>
-                        <h6 v-for="user in currentUsers" style="padding: 10px;"> {{user}}</h6>
-                    </el-col>
-                    <el-col span='18'>
-                        <ul style="background-color: #e6e9ff;">
-                            <li style="text-align: left; list-style-type: none; color: #667aff; padding: .5em; padding: .5em;"
-                                v-for="messages in inputedMessage">
-                                <p style ="font-family: Gameboy; font-size: small; " v-for ="time in timeList">{{time}}</p> <b>{{messages.username}}</b>: {{messages.words}} 
-                            </li>
-                        </ul>
-                    </el-col>
-                </el-row>
+                <div class="sidebar">
+                    <h5>Current Users:</h5>
+                    <h6 v-for="user in currentUsers"> {{user}}</h6>
+                </div>
+                <div class="content">
+                    <ul style="background-color: #667aff;">
+                        <li style="text-align: left; list-style-type: none; color: #e6e9ff; padding: .5em; padding: .5em;"
+                            v-for="messages in inputedMessage">
+                            <span style="font-family: Gameboy; font-size: small; " v-model="time">{{time}}</span>
+                            <b>{{messages.username}}</b>: {{messages.words}}
+                        </li>
+                    </ul>
+                </div>
             </div>
             <!-- input, tab thing  -->
             <el-form @submit.native.prevent>
@@ -96,6 +152,8 @@
     </div>
     <!-- Vue script stuff -->
     <script>
+        const track1 = new Audio('./assets/sending.wav');
+        const track2 = new Audio("./assets/recieving.wav");
         const currentTime = new Date();
         const mainRoom = new Vue({
             el: "#main",
@@ -111,7 +169,7 @@
                 newNotification: [],
                 currentUsers: [],
                 //time stuff
-                timeList: []
+                time: '',
             },
             created: function () {
                 socket = io();
@@ -125,6 +183,8 @@
                     } else if (!this.message.words.replaceAll(" ", "")) {
                         return null;
                     }
+                    //sound stuff
+                    track1.play();
                     socket.emit('message', this.message);
                     this.message.words = '';
                 },
@@ -146,7 +206,7 @@
                     socket.emit('join', this.message.username);
                     // console.log(`${this.message.username} has joined the server`)
                 },
-                getCurrentTime: function(){
+                getCurrentTime: function () {
                     let currentTime = new Date();
                     return `${currentTime.getFullYear()}\/ ${currentTime.getMonth() + 1} \/${currentTime.getDate()} // ${currentTime.getHours()} : ${currentTime.getMinutes()}`;
                 }
@@ -158,8 +218,8 @@
             mounted: function () {
                 socket.on("message", function (inMessage) {
                     mainRoom.inputedMessage.push(inMessage);
-                    mainRoom.timeList.push(mainRoom.getCurrentTime());
-                    console.log(mainRoom.timeList);
+                    track2.play();
+                    mainRoom.time =  mainRoom.getCurrentTime() ;
                 })
                 socket.on("updateUser", function (user) {
                     mainRoom.currentUsers = user;
@@ -169,6 +229,6 @@
             },
         })
     </script>
-    <script src="./js/main.js"></script>
 </body>
+
 </html>
